@@ -3,7 +3,12 @@ import json
 from typing import Text
 import requests
 
-mensaje = json.dumps([None, True, False, 'Hola, mundo!'])
-'[null, true, false, "Hola, mundo!"]'
-r = requests.post('http://localhost:5000/torrent', data = mensaje)
+
+
+
+params=json.loads(json.dumps({'Verdadero? ': 'Si', 'Falso': 'No', 'checksumm': ('fsf234234', 'dfg45f34t')}))
+
+print(params)
+
+r = requests.post('http://localhost:5000/torrent', data = params)
 r.status_code

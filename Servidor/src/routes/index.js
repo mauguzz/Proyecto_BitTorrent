@@ -19,7 +19,7 @@ router.post('/torrent', (req, res)=>{
     let torrentContent=JSON.stringify(req.body);
     console.log(req.body)
     fs.writeFileSync(`torrents/torrent_${uuid()}.torrent`, torrentContent,'utf-8'); //Agregar en alchivo usuarios.json el objeto
-    res.json({"Recibi ": torrentContent})
+    res.json({"Recibi": req.body})
     /*    let torrent_info = {
         piecelen:info.piecelen,
         checksum:info.checksum

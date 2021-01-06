@@ -2,6 +2,7 @@ const {Router} = require('express');
 const router = Router();
 
 const fs = require('fs'); // modulo File System
+const path = require('path');
 const uuid = require('uuid4');
 
  
@@ -17,21 +18,53 @@ router.get('/',(req, res)=>{
 
 router.post('/torrent', (req, res)=>{
     let torrentContent=JSON.stringify(req.body);
+    let {pieces, lastPiece, filepath, tracker, name, checksum, puertoTracker, id} = req.body
     console.log(req.body)
-    fs.writeFileSync(`torrents/torrent_${uuid()}.torrent`, torrentContent,'utf-8'); //Agregar en alchivo usuarios.json el objeto
+    fs.writeFileSync(`torrents/${name}.torrent`, torrentContent,'utf-8'); //Agregar en alchivo usuarios.json el objeto
     res.json({"Recibi": req.body})
-    /*    let torrent_info = {
-        piecelen:info.piecelen,
-        checksum:info.checksum
-    }
+})
 
-    let torrent = {
-        announce:announce, 
-        info:torrent_info
-      };
-      */
-    //recibe un json
-    //guarda el json en un archivo torrent
+router.get('/torrent', (req, res)=>{
+  
+})
+
+router.get('/archivos', (req, res)=>{
+  
+  var data=[];
+
+  try{
+    var ls=fs.readdirSync('torrents/');
+
+    for (let index = 0; index < ls.length; index++) {
+       const file = path.join('torrents/', ls[index]);
+       var dataFile =null;
+       try{
+          dataFile =fs.lstatSync(file);
+       }catch(e){}
+
+       if(dataFile){
+          data.push(
+             {
+                path: file,
+             });
+       }
+    }
+ }catch(e){}
+
+ let lista=[]
+
+
+ console.log(data)
+ data.forEach(element => {
+  
+   torrent=fs.readFileSync(element.path)
+   lista.push(JSON.parse(torrent)['name'])
+ });
+
+ console.log(lista)
+
+ res.json(lista)
+
 })
 
 //Localhost:4000/new-data

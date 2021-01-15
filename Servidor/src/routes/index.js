@@ -28,75 +28,75 @@ router.get('/torrent', (req, res)=>{
   
 })
 
-router.get('/archivos', (req, res)=>{
+// router.get('/archivos', (req, res)=>{
   
-  var data=[];
+//   var data=[];
 
-  try{
-    var ls=fs.readdirSync('torrents/');
+//   try{
+//     var ls=fs.readdirSync('torrents/');
 
-    for (let index = 0; index < ls.length; index++) {
-       const file = path.join('torrents/', ls[index]);
-       var dataFile =null;
-       try{
-          dataFile =fs.lstatSync(file);
-       }catch(e){}
+//     for (let index = 0; index < ls.length; index++) {
+//        const file = path.join('torrents/', ls[index]);
+//        var dataFile =null;
+//        try{
+//           dataFile =fs.lstatSync(file);
+//        }catch(e){}
 
-       if(dataFile){
-          data.push(
-             {
-                path: file,
-             });
-       }
-    }
- }catch(e){}
+//        if(dataFile){
+//           data.push(
+//              {
+//                 path: file,
+//              });
+//        }
+//     }
+//  }catch(e){}
 
- let lista=[]
+//  let lista=[]
 
 
- console.log(data)
- data.forEach(element => {
+//  console.log(data)
+//  data.forEach(element => {
   
-   torrent=fs.readFileSync(element.path)
-   lista.push(JSON.parse(torrent)['name'])
- });
+//    torrent=fs.readFileSync(element.path)
+//    lista.push(JSON.parse(torrent)['name'])
+//  });
 
- console.log(lista)
+//  console.log(lista)
 
- res.json(lista)
+//  res.json(lista)
 
-})
+// })
 
-//Localhost:4000/new-data
-router.get('/requestFile',(req, res)=>{
-    let id=req.params('id')
-  res.render('new-data')
-});
+// //Localhost:4000/new-data
+// router.get('/requestFile',(req, res)=>{
+//     let id=req.params('id')
+//   res.render('new-data')
+// });
 
 
-router.post('/new-data',(req, res) =>{
-  const {nombre, carrera, semestre} = req.body; //los datos que te ingresen en el formulario en formato
-                                                    //JSON (express.urlencoding)
-  let usuario = {
-    id:uuid(), 
-    nombre:nombre,
-    carrera:carrera, 
-    semestre:semestre
-  };
+// router.post('/new-data',(req, res) =>{
+//   const {nombre, carrera, semestre} = req.body; //los datos que te ingresen en el formulario en formato
+//                                                     //JSON (express.urlencoding)
+//   let usuario = {
+//     id:uuid(), 
+//     nombre:nombre,
+//     carrera:carrera, 
+//     semestre:semestre
+//   };
 
-  usuarios.push(usuario);
+//   usuarios.push(usuario);
 
-  // convierte a string el arreglo de objetos javascript
-  const usuariosJSON = JSON.stringify(usuarios);
+//   // convierte a string el arreglo de objetos javascript
+//   const usuariosJSON = JSON.stringify(usuarios);
 
-  fs.writeFileSync('src/usuarios.json', usuariosJSON,'utf-8'); //Agregar en alchivo usuarios.json el objeto
-                              //que se encuentra en JSON
+//   fs.writeFileSync('src/usuarios.json', usuariosJSON,'utf-8'); //Agregar en alchivo usuarios.json el objeto
+//                               //que se encuentra en JSON
 
-  res.redirect('/'); //Redirecciona a la ruta principal
-});
+//   res.redirect('/'); //Redirecciona a la ruta principal
+// });
 
-router.get('/delete/:id',(req,res)=>{
+// router.get('/delete/:id',(req,res)=>{
    
-});
+// });
 
 module.exports = router;

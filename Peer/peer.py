@@ -3,9 +3,39 @@ import json
 from typing import Text
 import requests
 import uuid
+import math
 
 #En esta funcion se reciviran los campos del torrent para poder crearlo
 def crear_torrent(filename, filepath, tracker_ip):
+    Pieces_Size = 10;
+    Max_Request = 10;
+
+    with open(filepath+'\\'+filename,"rb") as f:
+        file = f.read()
+        name = filename[0:filename.rindex('.')];
+        fileSize = len(file)
+        print(fileSize)
+        Pieces_Qty = int(math.ceil(fileSize/Pieces_Size))
+        lastpiece = 0;
+        indice = 0;
+        if Pieces_Qty * Pieces_Size > fileSize:
+            lastpiece = fileSize - (Pieces_Qty-1)*Pieces_Size
+        checksum = []
+        print(Pieces_Qty)
+        for i in range(0,Pieces_Qty-1):
+            print(i)
+            data = file[Pieces_Size*i:Pieces_Size*(i+1)-1]
+            checksum.append(hash(data)) 
+            print(data)
+            indice = i;
+
+        data = file[Pieces_Size*indice:Pieces_Size*indice+lastpiece]
+        checksum.append(hash(data))
+        print(data)
+        
+        for i in checksum:
+            print(i)
+
     ids=str(uuid.uuid1())   #Para asignarle un id al torrent
     jsonfile=json.dumps({
         'pieces': 10, 

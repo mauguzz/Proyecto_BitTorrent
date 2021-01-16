@@ -3,6 +3,7 @@ const router = Router();
 
 const fs = require('fs'); // modulo File System
 const path = require('path');
+const { PassThrough } = require('stream');
 const uuid = require('uuid4');
 
  
@@ -28,6 +29,12 @@ router.get('/torrent', (req, res)=>{
   
 })
 
+router.get('/archivos',(req,res)=>{
+  let archivos = []
+  for (let i = 0; i < 1000; i++) {
+    console.log()
+  } 
+})
 // router.get('/archivos', (req, res)=>{
   
 //   var data=[];

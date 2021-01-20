@@ -8,7 +8,7 @@ import hashlib #Para la verificacion de los pedazos
 
 #En esta funcion se reciviran los campos del torrent para poder crearlo
 def crear_torrent(filename, filepath, tracker_ip):
-    Pieces_Size = 1024;
+    Pieces_Size = 10000;
     Max_Request = 10;
     #Para la verificacion de la integridad de los datos
     hasher = hashlib.md5();
@@ -18,10 +18,10 @@ def crear_torrent(filename, filepath, tracker_ip):
         name = filename[0:filename.rindex('.')];
         fileSize = len(file)
         print(f"Tamaño del archivo: {fileSize}")
-
+        # de 10680 son 10.68 piezas
         #Hay un pequeño error, muestra una piezaz mas de las que deberian ser
         #Por ejemplo, se fragmento un archivo de 382 bytes y con un tamaño por pieza de 10 
-        #pero salio 39 piezas con un tamaño de ultima pieza de 2 bytes
+        #pero salio 39 piezas con un tamaño de1 ultima pieza de 2 bytes
         Pieces_Qty = int(math.ceil(fileSize/Pieces_Size))
 
         lastpiece = 0;
@@ -30,10 +30,10 @@ def crear_torrent(filename, filepath, tracker_ip):
         #Para saber cuanto mide la ultima pieza de la division del archivo
         if Pieces_Qty * Pieces_Size > fileSize:
             lastpiece = fileSize - (Pieces_Qty-1)*Pieces_Size
-
+ 
         checksum = []
 
-        for i in range(0,Pieces_Qty-1):
+        for i in range(0,Pieces_Qty-2):
             data = file[Pieces_Size*i:Pieces_Size*(i+1)-1]
             #El pedazo de datos pasa por nuestro objeto hasher
             hasher.update(data)
@@ -44,12 +44,12 @@ def crear_torrent(filename, filepath, tracker_ip):
         hasher.update(data)
         checksum.append(hasher.hexdigest())
         
-        for i in checksum:
-            print(f"[{i}]")
+        # for i in checksum:
+        #     print(f"[{i}]")
 
     ids=str(uuid.uuid1())   #Para asignarle un id al torrent
     jsonfile=json.dumps({
-        'pieces': Pieces_Qty, 
+        'pieces': Pieces_Qty-1, 
         'lastPiece': lastpiece, 
         'filepath':filepath, 
         'tracker': tracker_ip, 
@@ -89,19 +89,34 @@ def compartir_archivo():
 def buscar_archivos():
     r = requests.get('http://localhost:5000/archivos', data={1: 'p'})
     msg=r.json()
-    print(msg)
+    print(msg[0])
+    print('Elija un archivo para descargar: ')
+    
+    
+    for i,val in enumerate(msg):
+        print(f"{i+1}:{val}")
+    opc = int(input('Opcion: '))
+    nombre = msg[opc-1]
+    print(nombre)
+    r = requests.get('http://localhost:5000/torrent', params={'name':nombre})
+    # torrent = r.json
+    torrent = json.loads(r.text)
+    
     r.status_code
 
 def main():
     print('¿Qué quieres hacer?')
     opciones={1:'Compartir archivo.', 2:'Buscar archivos para descargar'}
+    funciones=[compartir_archivo,buscar_archivos]
+
     
     for key, op in opciones.items(): #para mostrar el menu de el diccionario de
         print(f"[{key}] {op}" )
     opt=int(input('Opción: '))
     
-    compartir_archivo()
-    buscar_archivos()
+    funciones[opt-1]()
+    # compartir_archivo()
+    # buscar_archivos()
 
 main()
 

@@ -25,54 +25,55 @@ router.post('/torrent', (req, res)=>{
     res.json({"Recibi": req.body})
 })
 
+router.get('/archivos', (req, res)=>{
+  
+  var data=[];
+
+  try{
+    var ls=fs.readdirSync('torrents/');
+
+    for (let index = 0; index < ls.length; index++) {
+       const file = path.join('torrents/', ls[index]);
+       var dataFile =null;
+       try{
+          dataFile =fs.lstatSync(file);
+       }catch(e){}
+
+       if(dataFile){
+          data.push(
+             {
+                path: file,
+             });
+       }
+    }
+ }catch(e){}
+
+ let lista=[]
+
+
+ console.log(data)
+ data.forEach(element => {
+  
+   let torrent=fs.readFileSync(element.path)
+   lista.push(JSON.parse(torrent)['name'])
+ });
+
+ console.log(lista)
+
+ res.json(lista)
+
+})
+
 router.get('/torrent', (req, res)=>{
-  
+  let file_data_requested=req.query.name
+  console.log("Holaa")
+  console.log(file_data_requested)
+  let file_name=file_data_requested +'.torrent'
+  let torrent=fs.readFileSync(path.join('torrents/', file_name))
+  console.log(torrent)
+  res.json(JSON.parse(torrent))
+
 })
-
-router.get('/archivos',(req,res)=>{
-  let archivos = []
-  for (let i = 0; i < 1000; i++) {
-    console.log()
-  } 
-})
-// router.get('/archivos', (req, res)=>{
-  
-//   var data=[];
-
-//   try{
-//     var ls=fs.readdirSync('torrents/');
-
-//     for (let index = 0; index < ls.length; index++) {
-//        const file = path.join('torrents/', ls[index]);
-//        var dataFile =null;
-//        try{
-//           dataFile =fs.lstatSync(file);
-//        }catch(e){}
-
-//        if(dataFile){
-//           data.push(
-//              {
-//                 path: file,
-//              });
-//        }
-//     }
-//  }catch(e){}
-
-//  let lista=[]
-
-
-//  console.log(data)
-//  data.forEach(element => {
-  
-//    torrent=fs.readFileSync(element.path)
-//    lista.push(JSON.parse(torrent)['name'])
-//  });
-
-//  console.log(lista)
-
-//  res.json(lista)
-
-// })
 
 // //Localhost:4000/new-data
 // router.get('/requestFile',(req, res)=>{

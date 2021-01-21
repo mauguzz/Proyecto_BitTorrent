@@ -4,7 +4,12 @@ from typing import Text
 import requests
 import uuid
 import math
-import hashlib #Para la verificacion de los pedazos 
+import hashlib #Para la verificacion de los pedazos
+import socket
+
+import grpc
+import tracker_pb2_grpc
+import tracker_pb2
 
 #En esta funcion se reciviran los campos del torrent para poder crearlo
 def crear_torrent(filename, filepath, tracker_ip):
@@ -35,6 +40,7 @@ def crear_torrent(filename, filepath, tracker_ip):
 
         for i in range(0,Pieces_Qty-2):
             data = file[Pieces_Size*i:Pieces_Size*(i+1)-1]
+            
             #El pedazo de datos pasa por nuestro objeto hasher
             hasher.update(data)
             checksum.append(hasher.hexdigest()) 
@@ -91,18 +97,30 @@ def buscar_archivos():
     msg=r.json()
     print(msg[0])
     print('Elija un archivo para descargar: ')
-    
-    
+
     for i,val in enumerate(msg):
         print(f"{i+1}:{val}")
     opc = int(input('Opcion: '))
     nombre = msg[opc-1]
     print(nombre)
     r = requests.get('http://localhost:5000/torrent', params={'name':nombre})
-    # torrent = r.json
+
     torrent = json.loads(r.text)
-    
+    trackerIP = torrent['tracker']
+    puertoTrakcer = torrent['puertoTracker']
+    fileName = torrent['name']
+    anunciarseTracker(trackerIP,puertoTrakcer,fileName)
     r.status_code
+
+def anunciarse_tracker(trackerIP,pTracker,fileName):
+
+    hostIP = socket.gethostname()
+
+    with grpc.insecure_channel(trackerIP+':'+pTracker) as channel:
+        stub = tracker_pb2_grpc.SwarmStub(channel)
+        details = stub.CreateSwarm(tracker_pb2.SwarmNode(fileName = fileName,seederIP = hostIP,seederPort = 5500))
+        print(details)
+
 
 def main():
     print('¿Qué quieres hacer?')

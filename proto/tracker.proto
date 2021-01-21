@@ -1,0 +1,33 @@
+//python -m grpc_tools.protoc -I./proto --python_out=. --grpc_python_out=. ./proto/tracker.proto
+syntax = "proto3";
+
+service Swarm{
+    rpc CreateSwarm(SwarmNode) returns (Status){}  
+    rpc RequestSwarm(SwarmData) returns (Seeders){}
+    rpc AddToSwarm(SwarmNode) returns (Status){}
+}
+//Para anunciarce
+message SwarmNode{
+    string fileName = 1;
+    string seederIP = 2;
+    int32 seederPort = 3;
+}
+message Status{
+    string details = 1;
+}
+
+//Para obtener lista
+message SwarmData{
+    string fileName = 1;
+    string leecherIP = 2;
+    string id = 3;
+}
+message Seeder{
+    string seederIP = 1;
+    int32 seederPort = 2; 
+}
+message Seeders{
+    repeated Seeder items = 1;
+}
+
+//Para añadir al Swarm

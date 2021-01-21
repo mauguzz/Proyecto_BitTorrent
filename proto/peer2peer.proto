@@ -1,0 +1,13 @@
+syntax = "proto3"
+
+service FileSharing{
+    rpc Request(RequestPieces) returns (stream bytes){}
+}
+//Para anunciarce
+message RequestPieces{
+    int32 firstPiece = 1;
+    int32 lastPiece = 2;
+    string fileName = 3;
+    string filePath = 4;
+}
+

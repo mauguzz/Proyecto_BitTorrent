@@ -5,7 +5,7 @@ const path = require ('path');  //Para acceder a las carpetas de mi proyecto a p
 const morgan = require ('morgan');  //Middleware para la gestion de peticiones
 
 //settings
-app.set('port', 5000);  //Puerto donde se ejecuta la apliacaion
+app.set('port', 4000);  //Puerto donde se ejecuta la apliacaion
 app.set('view engine', 'ejs'); //El motor de mis plantillas sera ejs
 
 //middleware

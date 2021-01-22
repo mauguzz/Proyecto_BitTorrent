@@ -77,7 +77,7 @@ def post_torrent_webserver(filename, webserver_ip):
         filecontent=file.read()
 
     params=json.loads(filecontent)
-    r = requests.post('http://localhost:5000/torrent', data = params) #mandando los datos del torrent en formato JSON
+    r = requests.post('http://localhost:4000/torrent', data = params) #mandando los datos del torrent en formato JSON
     msg=r.json()
     print(msg['Recibi']['checksum']) #Imprimimos el subobjeto checksum de la respues del servidor
     r.status_code
@@ -90,6 +90,7 @@ def compartir_archivo():
     tracker_ip=input('Ingrese IP del tracker: ')
     file=crear_torrent(filename, filepath, tracker_ip) #Al parecer no hacemos uso de este file por el momento
     post_torrent_webserver(filename,webserver_ip)
+    anunciarse_tracker(tracker_ip,5000,filename)
 
 #Mandamos a buscar los archivos disponibles en el servidor y en el enjambre
 def buscar_archivos():
@@ -109,14 +110,13 @@ def buscar_archivos():
     trackerIP = torrent['tracker']
     puertoTrakcer = torrent['puertoTracker']
     fileName = torrent['name']
-    anunciarseTracker(trackerIP,puertoTrakcer,fileName)
     r.status_code
 
 def anunciarse_tracker(trackerIP,pTracker,fileName):
 
     hostIP = socket.gethostname()
 
-    with grpc.insecure_channel(trackerIP+':'+pTracker) as channel:
+    with grpc.insecure_channel(trackerIP+':'+str(pTracker)) as channel:
         stub = tracker_pb2_grpc.SwarmStub(channel)
         details = stub.CreateSwarm(tracker_pb2.SwarmNode(fileName = fileName,seederIP = hostIP,seederPort = 5500))
         print(details)

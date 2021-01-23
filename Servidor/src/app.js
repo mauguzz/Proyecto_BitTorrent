@@ -1,4 +1,3 @@
-
 const express = require ('express');
 const app = express();
 const path = require ('path');  //Para acceder a las carpetas de mi proyecto a partir del context path
@@ -15,10 +14,6 @@ app.use(express.urlencoded({extended:false})); // traducción de formularios en 
 //routes
 app.use(require('./routes/index'));
 
-//static 
-//app.use(express.static(path.join(__dirname,'public')));
-
-// 404 handler
 app.use((req, resp, next)=>{
     resp.status(404).send("recurso no encontrado en la ubicación especificada ...");
 }); 

@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rtracker.proto\"C\n\tSwarmNode\x12\x10\n\x08\x66ileName\x18\x01 \x01(\t\x12\x10\n\x08seederIP\x18\x02 \x01(\t\x12\x12\n\nseederPort\x18\x03 \x01(\x05\"\x19\n\x06Status\x12\x0f\n\x07\x64\x65tails\x18\x01 \x01(\t\"<\n\tSwarmData\x12\x10\n\x08\x66ileName\x18\x01 \x01(\t\x12\x11\n\tleecherIP\x18\x02 \x01(\t\x12\n\n\x02id\x18\x03 \x01(\t\".\n\x06Seeder\x12\x10\n\x08seederIP\x18\x01 \x01(\t\x12\x12\n\nseederPort\x18\x02 \x01(\x05\"!\n\x07Seeders\x12\x16\n\x05items\x18\x01 \x03(\x0b\x32\x07.Seeder2z\n\x05Swarm\x12$\n\x0b\x43reateSwarm\x12\n.SwarmNode\x1a\x07.Status\"\x00\x12&\n\x0cRequestSwarm\x12\n.SwarmData\x1a\x08.Seeders\"\x00\x12#\n\nAddToSwarm\x12\n.SwarmNode\x1a\x07.Status\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\rtracker.proto\"O\n\tSwarmNode\x12\x10\n\x08\x66ileName\x18\x01 \x01(\t\x12\x10\n\x08seederIP\x18\x02 \x01(\t\x12\x12\n\nseederPort\x18\x03 \x01(\x05\x12\n\n\x02id\x18\x04 \x01(\t\"\x19\n\x06Status\x12\x0f\n\x07\x64\x65tails\x18\x01 \x01(\t\"Q\n\tSwarmData\x12\x10\n\x08\x66ileName\x18\x01 \x01(\t\x12\x11\n\tleecherIP\x18\x02 \x01(\t\x12\x13\n\x0bleecherPort\x18\x03 \x01(\t\x12\n\n\x02id\x18\x04 \x01(\t2y\n\x05Swarm\x12$\n\x0b\x43reateSwarm\x12\n.SwarmNode\x1a\x07.Status\"\x00\x12%\n\x0cRequestSwarm\x12\n.SwarmData\x1a\x07.Status\"\x00\x12#\n\nAddToSwarm\x12\n.SwarmNode\x1a\x07.Status\"\x00\x62\x06proto3'
 )
 
 
@@ -54,6 +54,13 @@ _SWARMNODE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='id', full_name='SwarmNode.id', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -67,7 +74,7 @@ _SWARMNODE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=17,
-  serialized_end=84,
+  serialized_end=96,
 )
 
 
@@ -98,8 +105,8 @@ _STATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=86,
-  serialized_end=111,
+  serialized_start=98,
+  serialized_end=123,
 )
 
 
@@ -126,51 +133,19 @@ _SWARMDATA = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='id', full_name='SwarmData.id', index=2,
+      name='leecherPort', full_name='SwarmData.leecherPort', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=113,
-  serialized_end=173,
-)
-
-
-_SEEDER = _descriptor.Descriptor(
-  name='Seeder',
-  full_name='Seeder',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
     _descriptor.FieldDescriptor(
-      name='seederIP', full_name='Seeder.seederIP', index=0,
-      number=1, type=9, cpp_type=9, label=1,
+      name='id', full_name='SwarmData.id', index=3,
+      number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='seederPort', full_name='Seeder.seederPort', index=1,
-      number=2, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -183,48 +158,13 @@ _SEEDER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=175,
-  serialized_end=221,
+  serialized_start=125,
+  serialized_end=206,
 )
 
-
-_SEEDERS = _descriptor.Descriptor(
-  name='Seeders',
-  full_name='Seeders',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='items', full_name='Seeders.items', index=0,
-      number=1, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=223,
-  serialized_end=256,
-)
-
-_SEEDERS.fields_by_name['items'].message_type = _SEEDER
 DESCRIPTOR.message_types_by_name['SwarmNode'] = _SWARMNODE
 DESCRIPTOR.message_types_by_name['Status'] = _STATUS
 DESCRIPTOR.message_types_by_name['SwarmData'] = _SWARMDATA
-DESCRIPTOR.message_types_by_name['Seeder'] = _SEEDER
-DESCRIPTOR.message_types_by_name['Seeders'] = _SEEDERS
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 SwarmNode = _reflection.GeneratedProtocolMessageType('SwarmNode', (_message.Message,), {
@@ -248,20 +188,6 @@ SwarmData = _reflection.GeneratedProtocolMessageType('SwarmData', (_message.Mess
   })
 _sym_db.RegisterMessage(SwarmData)
 
-Seeder = _reflection.GeneratedProtocolMessageType('Seeder', (_message.Message,), {
-  'DESCRIPTOR' : _SEEDER,
-  '__module__' : 'tracker_pb2'
-  # @@protoc_insertion_point(class_scope:Seeder)
-  })
-_sym_db.RegisterMessage(Seeder)
-
-Seeders = _reflection.GeneratedProtocolMessageType('Seeders', (_message.Message,), {
-  'DESCRIPTOR' : _SEEDERS,
-  '__module__' : 'tracker_pb2'
-  # @@protoc_insertion_point(class_scope:Seeders)
-  })
-_sym_db.RegisterMessage(Seeders)
-
 
 
 _SWARM = _descriptor.ServiceDescriptor(
@@ -271,8 +197,8 @@ _SWARM = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=258,
-  serialized_end=380,
+  serialized_start=208,
+  serialized_end=329,
   methods=[
   _descriptor.MethodDescriptor(
     name='CreateSwarm',
@@ -290,7 +216,7 @@ _SWARM = _descriptor.ServiceDescriptor(
     index=1,
     containing_service=None,
     input_type=_SWARMDATA,
-    output_type=_SEEDERS,
+    output_type=_STATUS,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),

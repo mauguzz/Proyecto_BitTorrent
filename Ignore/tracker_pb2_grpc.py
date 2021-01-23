@@ -22,7 +22,7 @@ class SwarmStub(object):
         self.RequestSwarm = channel.unary_unary(
                 '/Swarm/RequestSwarm',
                 request_serializer=tracker__pb2.SwarmData.SerializeToString,
-                response_deserializer=tracker__pb2.Status.FromString,
+                response_deserializer=tracker__pb2.Seeders.FromString,
                 )
         self.AddToSwarm = channel.unary_unary(
                 '/Swarm/AddToSwarm',
@@ -63,7 +63,7 @@ def add_SwarmServicer_to_server(servicer, server):
             'RequestSwarm': grpc.unary_unary_rpc_method_handler(
                     servicer.RequestSwarm,
                     request_deserializer=tracker__pb2.SwarmData.FromString,
-                    response_serializer=tracker__pb2.Status.SerializeToString,
+                    response_serializer=tracker__pb2.Seeders.SerializeToString,
             ),
             'AddToSwarm': grpc.unary_unary_rpc_method_handler(
                     servicer.AddToSwarm,
@@ -110,7 +110,7 @@ class Swarm(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/Swarm/RequestSwarm',
             tracker__pb2.SwarmData.SerializeToString,
-            tracker__pb2.Status.FromString,
+            tracker__pb2.Seeders.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

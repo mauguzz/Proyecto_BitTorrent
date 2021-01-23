@@ -1,15 +1,25 @@
-import http.client
+import http.client 
 import json
 from typing import Text
-import requests
-import uuid
+import requests #Para hacer peticiones al servidor
+import uuid #Para generar un id para cada torrent
 import math
 import hashlib #Para la verificacion de los pedazos
-import socket
+import socket #Para obtenet la ip del host
 
-import grpc
+import grpc #Para hacer la comunicion entre nodos
 import tracker_pb2_grpc
 import tracker_pb2
+
+#Obtenemos los datos del servidor y tracker para poder compartir nuestro
+def compartir_archivo():
+    filepath=input('Ingrese ruta del archivo: ')
+    filename=input('Ingrese nombre del archivo: ')
+    webserver_ip=input('Ingrese IP del servidor web: ')
+    tracker_ip=input('Ingrese IP del tracker: ')
+    file=crear_torrent(filename, filepath, tracker_ip) #Al parecer no hacemos uso de este file por el momento
+    post_torrent_webserver(filename,webserver_ip)
+    anunciarse_tracker(tracker_ip,5000,filename)
 
 #En esta funcion se reciviran los campos del torrent para poder crearlo
 def crear_torrent(filename, filepath, tracker_ip):
@@ -23,10 +33,6 @@ def crear_torrent(filename, filepath, tracker_ip):
         name = filename[0:filename.rindex('.')];
         fileSize = len(file)
         print(f"Tamaño del archivo: {fileSize}")
-        # de 10680 son 10.68 piezas
-        #Hay un pequeño error, muestra una piezaz mas de las que deberian ser
-        #Por ejemplo, se fragmento un archivo de 382 bytes y con un tamaño por pieza de 10 
-        #pero salio 39 piezas con un tamaño de1 ultima pieza de 2 bytes
         Pieces_Qty = int(math.ceil(fileSize/Pieces_Size))
 
         lastpiece = 0;
@@ -49,9 +55,6 @@ def crear_torrent(filename, filepath, tracker_ip):
         data = file[Pieces_Size*indice:Pieces_Size*indice+lastpiece]
         hasher.update(data)
         checksum.append(hasher.hexdigest())
-        
-        # for i in checksum:
-        #     print(f"[{i}]")
 
     ids=str(uuid.uuid1())   #Para asignarle un id al torrent
     jsonfile=json.dumps({
@@ -61,7 +64,7 @@ def crear_torrent(filename, filepath, tracker_ip):
         'tracker': tracker_ip, 
         'name':filename, 
         'checksum': checksum, 
-        'puertoTracker': 6000, 
+        'puertoTracker': 5000, 
         'id': ids
     })
 
@@ -72,7 +75,6 @@ def crear_torrent(filename, filepath, tracker_ip):
 
 #Compartiendo el arhivo .torrent con el servidor
 def post_torrent_webserver(filename, webserver_ip):
-
     with open(filename+'.torrent', 'r') as file:
         filecontent=file.read()
 
@@ -82,36 +84,7 @@ def post_torrent_webserver(filename, webserver_ip):
     print(msg['Recibi']['checksum']) #Imprimimos el subobjeto checksum de la respues del servidor
     r.status_code
 
-#Obtenemos los datos del servidor y tracker para poder compartir nuestro
-def compartir_archivo():
-    filepath=input('Ingrese ruta del archivo: ')
-    filename=input('Ingrese nombre del archivo: ')
-    webserver_ip=input('Ingrese IP del servidor web: ')
-    tracker_ip=input('Ingrese IP del tracker: ')
-    file=crear_torrent(filename, filepath, tracker_ip) #Al parecer no hacemos uso de este file por el momento
-    post_torrent_webserver(filename,webserver_ip)
-    anunciarse_tracker(tracker_ip,5000,filename)
-
-#Mandamos a buscar los archivos disponibles en el servidor y en el enjambre
-def buscar_archivos():
-    r = requests.get('http://localhost:5000/archivos', data={1: 'p'})
-    msg=r.json()
-    print(msg[0])
-    print('Elija un archivo para descargar: ')
-
-    for i,val in enumerate(msg):
-        print(f"{i+1}:{val}")
-    opc = int(input('Opcion: '))
-    nombre = msg[opc-1]
-    print(nombre)
-    r = requests.get('http://localhost:5000/torrent', params={'name':nombre})
-
-    torrent = json.loads(r.text)
-    trackerIP = torrent['tracker']
-    puertoTrakcer = torrent['puertoTracker']
-    fileName = torrent['name']
-    r.status_code
-
+#Para anunciarnos al tracker   
 def anunciarse_tracker(trackerIP,pTracker,fileName):
 
     hostIP = socket.gethostname()
@@ -121,20 +94,45 @@ def anunciarse_tracker(trackerIP,pTracker,fileName):
         details = stub.CreateSwarm(tracker_pb2.SwarmNode(fileName = fileName,seederIP = hostIP,seederPort = 5500))
         print(details)
 
+#Mandamos a buscar los archivos disponibles en el servidor y en el enjambre
+def buscar_archivos():
+    r = requests.get('http://localhost:4000/archivos', data={1: 'p'})
+    msg=r.json()
+    print(msg[0])
+    print('Elija un archivo para descargar: ')
 
+    for i,val in enumerate(msg):
+        print(f"{i+1}:{val}")
+    opc = int(input('Opcion: '))
+    nombre = msg[opc-1]
+    print(nombre)
+    r = requests.get('http://localhost:4000/torrent', params={'name':nombre})
+    hostIP = socket.gethostname()
+    
+    torrent = json.loads(r.text)
+    trackerIP = torrent['tracker']
+    puertoTrakcer = torrent['puertoTracker']
+    fileName = torrent['name']
+    id = torrent['id']
+
+    print(trackerIP,puertoTrakcer)
+
+    with grpc.insecure_channel(trackerIP+':'+str(puertoTrakcer)) as channel:
+        stub = tracker_pb2_grpc.SwarmStub(channel)
+        request = stub.RequestSwarm(tracker_pb2.SwarmData(fileName = fileName,leecherIP = hostIP,leecherPort = str(5000),id = id))
+        print(request)
+
+#Programa principal
 def main():
     print('¿Qué quieres hacer?')
     opciones={1:'Compartir archivo.', 2:'Buscar archivos para descargar'}
     funciones=[compartir_archivo,buscar_archivos]
 
-    
     for key, op in opciones.items(): #para mostrar el menu de el diccionario de
         print(f"[{key}] {op}" )
     opt=int(input('Opción: '))
     
     funciones[opt-1]()
-    # compartir_archivo()
-    # buscar_archivos()
 
 main()
 

@@ -3,7 +3,7 @@ syntax = "proto3";
 
 service Swarm{
     rpc CreateSwarm(SwarmNode) returns (Status){}  
-    rpc RequestSwarm(SwarmData) returns (Seeders){} //cambiar por string
+    rpc RequestSwarm(SwarmData) returns (Status){} //cambiar por string
     rpc AddToSwarm(SwarmNode) returns (Status){}
 }
 //Para anunciarce
@@ -11,6 +11,7 @@ message SwarmNode{
     string fileName = 1;
     string seederIP = 2;
     int32 seederPort = 3;
+    string id = 4;
     //Agregar un id
 }
 message Status{
@@ -21,14 +22,8 @@ message Status{
 message SwarmData{
     string fileName = 1;
     string leecherIP = 2;
-    string id = 3;
-}
-message Seeder{
-    string seederIP = 1;
-    int32 seederPort = 2; 
-}
-message Seeders{ //Vamos a usar Strings mejor 
-    repeated Seeder items = 1;
+    string leecherPort = 3;
+    string id = 4;
 }
 
 //Para añadir al Swarm

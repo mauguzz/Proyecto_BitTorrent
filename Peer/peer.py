@@ -8,22 +8,131 @@ import hashlib #Para la verificacion de los pedazos
 import socket #Para obtenet la ip del host
 
 import grpc #Para hacer la comunicion entre nodos
+from concurrent import futures
+import threading
 import tracker_pb2_grpc
 import tracker_pb2
+import peer2peer_pb2_grpc
+import peer2peer_pb2
+
+
+Pieces_Size = 10000
+
+
+#---------------------------------------------------------------------------------------
+#Función como servidor de archivos en comunicación peer to peer (seeder)
+class FileSharing(peer2peer_pb2_grpc.FileSharingServicer):
+    def Request(self, request, context):
+        firstPiece = request.firstPiece
+        lastPiece = request.lastPiece
+        fileName = request.fileName
+        filePath = request.filePath
+
+        pieces=''
+        with open(filePath+fileName, 'rb') as file:
+            pieces=file.read()
+
+        return peer2peer_pb2.Response(response=pieces[Pieces_Size*firstPiece:Pieces_Size*(lastPiece+1)-1])
+
+def serve(seederPort):
+    hostName = socket.gethostname()
+    hostIP = socket.gethostbyname(hostName)
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    peer2peer_pb2_grpc.add_FileSharingServicer_to_server(FileSharing(), server)
+    server.add_insecure_port(hostIP+':'+str(seederPort)) #Se va a tener que cambiar el puerto, debido a que lo vamos a trabajar en puto localhost
+    server.start()
+    server.wait_for_termination()
+
+#------------------------------------------------------------------------------------
+#Función como cliente de archivos en comunicación peer to peer (lecher)
+def conexion_peer_peer(lista, torrent):
+    numero_conexiones=5
+    
+    fileName = torrent['name']
+    pieces = int(torrent['pieces'])
+    lastPieceSize = int(torrent['lastPiece'])
+    filePath = torrent['filepath']
+    
+    if pieces==0 :
+        #Pedir la última pieza truncada al último seeder
+        with grpc.insecure_channel(lista[0]['seederIP']+':'+str(lista[0]['seederPort'])) as channel:
+            stub = peer2peer_pb2_grpc.FileSharingStub(channel)
+            details = stub.Request(
+                peer2peer_pb2.RequestPieces(
+                    firstPiece = 0,
+                    lastPiece= lastPieceSize-1,
+                    fileName=fileName,
+                    filePath=filePath
+                )
+            )
+            print(details)
+        #Hacer una sola conexión
+    else:
+        minimo=min(int(numero_conexiones), len(lista))
+        long=math.ceil(pieces/minimo)
+       
+        
+        #Pedir todas las piezas que están completas a diferentes seeders
+        it=0
+        last_seeder={}
+        for i in range(0, minimo):
+            print('Itera')
+            desde=long*it
+            hasta=long*(it+1)-1
+
+            #Conexiones con los peers,,,
+            print(lista[i]['seederIP']+':'+str(lista[i]['seederPort']))
+            with grpc.insecure_channel(lista[i]['seederIP']+':'+str(lista[i]['seederPort'])) as channel:
+                stub = peer2peer_pb2_grpc.FileSharingStub(channel)
+                details = stub.Request(
+                    peer2peer_pb2.RequestPieces(
+                        firstPiece = desde,
+                        lastPiece= min(hasta, pieces-1),
+                        fileName=fileName,
+                        filePath=filePath
+                    )
+                )
+                print(details)
+                print('Pasamos por 92')
+
+            #print(i)
+            print('Pasamos por 95')
+            it+=1
+            last_seeder=i
+        
+        if lastPieceSize!=0:
+            #Pedir la última pieza truncada al último seeder
+            print('Pasamos por 101')
+            with grpc.insecure_channel(lista[last_seeder]['seederIP']+':'+str(lista[last_seeder]['seederPort'])) as channel:
+                stub = peer2peer_pb2_grpc.FileSharingStub(channel)
+                details = stub.Request(
+                    peer2peer_pb2.RequestPieces(
+                        firstPiece = pieces*Pieces_Size,
+                        lastPiece= pieces*Pieces_Size+lastPieceSize,
+                        fileName=fileName,
+                        filePath=filePath
+                    )
+                )
+                print('Pasamos por 112')
+                print(details)
+
+
+#--------------------------------------------------------------------------------
+#Funciones de usuario
 
 #Obtenemos los datos del servidor y tracker para poder compartir nuestro
-def compartir_archivo():
+def compartir_archivo(seederPort):
     filepath=input('Ingrese ruta del archivo: ')
     filename=input('Ingrese nombre del archivo: ')
     webserver_ip=input('Ingrese IP del servidor web: ')
     tracker_ip=input('Ingrese IP del tracker: ')
     file=crear_torrent(filename, filepath, tracker_ip) #Al parecer no hacemos uso de este file por el momento
     post_torrent_webserver(filename,webserver_ip)
-    anunciarse_tracker(tracker_ip,5000,filename)
+    anunciarse_tracker(tracker_ip,5000,filename, seederPort)
 
 #En esta funcion se reciviran los campos del torrent para poder crearlo
 def crear_torrent(filename, filepath, tracker_ip):
-    Pieces_Size = 10000;
+    
     Max_Request = 10;
     #Para la verificacion de la integridad de los datos
     hasher = hashlib.md5();
@@ -86,18 +195,20 @@ def post_torrent_webserver(filename, webserver_ip):
     r.status_code
 
 #Para anunciarnos al tracker   
-def anunciarse_tracker(trackerIP,pTracker,fileName):
+def anunciarse_tracker(trackerIP,pTracker,fileName, seederPort):
     hostName = socket.gethostname()
     hostIP = socket.gethostbyname(hostName)
 
 
     with grpc.insecure_channel(trackerIP+':'+str(pTracker)) as channel:
         stub = tracker_pb2_grpc.SwarmStub(channel)
-        details = stub.CreateSwarm(tracker_pb2.SwarmNode(fileName = fileName,seederIP = hostIP,seederPort = 5500))
+        details = stub.CreateSwarm(tracker_pb2.SwarmNode(fileName = fileName,seederIP = hostIP,seederPort = int(seederPort)))
         print(details)
 
+
+
 #Mandamos a buscar los archivos disponibles en el servidor y en el enjambre
-def buscar_archivos():
+def buscar_archivos(seederPort):
     r = requests.get('http://localhost:4000/archivos', data={1: 'p'})
     msg=r.json()
     print(msg[0])
@@ -119,6 +230,9 @@ def buscar_archivos():
     puertoTrakcer = torrent['puertoTracker']
     fileName = torrent['name']
     idTorrent = torrent['id']
+    pieces = torrent['pieces']
+    lastPiece = torrent['lastPiece']
+
 
     print(trackerIP,puertoTrakcer)
 
@@ -129,9 +243,10 @@ def buscar_archivos():
         print(request)
         swarm_data=json.loads(request.details)
     print(swarm_data)
-    swarm=swarm_data.swarm
-#Programa principal
-def main():
+    conexion_peer_peer(swarm_data['swarm'], torrent)
+    
+def usuario(seederPort):
+
     print('¿Qué quieres hacer?')
     opciones={1:'Compartir archivo.', 2:'Buscar archivos para descargar'}
     funciones=[compartir_archivo,buscar_archivos]
@@ -140,7 +255,21 @@ def main():
         print(f"[{key}] {op}" )
     opt=int(input('Opción: '))
     
-    funciones[opt-1]()
+    funciones[opt-1](seederPort)
+
+
+
+
+#Programa principal
+def main():
+    seederPort=input('Ingrese número de puerto: ')
+    t=threading.Thread(target=usuario,args=[seederPort])
+    t.start()
+    serve(seederPort)
+    
+
+    
+
 
 main()
 

@@ -19,43 +19,43 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0fpeer2peer.proto\"W\n\x0cRequestBytes\x12\x11\n\tfirstByte\x18\x01 \x01(\x05\x12\x10\n\x08lastByte\x18\x02 \x01(\x05\x12\x10\n\x08\x66ileName\x18\x03 \x01(\t\x12\x10\n\x08\x66ilePath\x18\x04 \x01(\t\"\x1c\n\x08Response\x12\x10\n\x08response\x18\x01 \x01(\x0c\x32\x34\n\x0b\x46ileSharing\x12%\n\x07Request\x12\r.RequestBytes\x1a\t.Response\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x0fpeer2peer.proto\"Z\n\rRequestPieces\x12\x12\n\nfirstPiece\x18\x01 \x01(\x05\x12\x11\n\tlastPiece\x18\x02 \x01(\x05\x12\x10\n\x08\x66ileName\x18\x03 \x01(\t\x12\x10\n\x08\x66ilePath\x18\x04 \x01(\t\"\x1c\n\x08Response\x12\x10\n\x08response\x18\x01 \x01(\x0c\x32\x35\n\x0b\x46ileSharing\x12&\n\x07Request\x12\x0e.RequestPieces\x1a\t.Response\"\x00\x62\x06proto3'
 )
 
 
 
 
-_REQUESTBYTES = _descriptor.Descriptor(
-  name='RequestBytes',
-  full_name='RequestBytes',
+_REQUESTPIECES = _descriptor.Descriptor(
+  name='RequestPieces',
+  full_name='RequestPieces',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='firstByte', full_name='RequestBytes.firstByte', index=0,
+      name='firstPiece', full_name='RequestPieces.firstPiece', index=0,
       number=1, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='lastByte', full_name='RequestBytes.lastByte', index=1,
+      name='lastPiece', full_name='RequestPieces.lastPiece', index=1,
       number=2, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='fileName', full_name='RequestBytes.fileName', index=2,
+      name='fileName', full_name='RequestPieces.fileName', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='filePath', full_name='RequestBytes.filePath', index=3,
+      name='filePath', full_name='RequestPieces.filePath', index=3,
       number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -74,7 +74,7 @@ _REQUESTBYTES = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=19,
-  serialized_end=106,
+  serialized_end=109,
 )
 
 
@@ -105,20 +105,20 @@ _RESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=108,
-  serialized_end=136,
+  serialized_start=111,
+  serialized_end=139,
 )
 
-DESCRIPTOR.message_types_by_name['RequestBytes'] = _REQUESTBYTES
+DESCRIPTOR.message_types_by_name['RequestPieces'] = _REQUESTPIECES
 DESCRIPTOR.message_types_by_name['Response'] = _RESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-RequestBytes = _reflection.GeneratedProtocolMessageType('RequestBytes', (_message.Message,), {
-  'DESCRIPTOR' : _REQUESTBYTES,
+RequestPieces = _reflection.GeneratedProtocolMessageType('RequestPieces', (_message.Message,), {
+  'DESCRIPTOR' : _REQUESTPIECES,
   '__module__' : 'peer2peer_pb2'
-  # @@protoc_insertion_point(class_scope:RequestBytes)
+  # @@protoc_insertion_point(class_scope:RequestPieces)
   })
-_sym_db.RegisterMessage(RequestBytes)
+_sym_db.RegisterMessage(RequestPieces)
 
 Response = _reflection.GeneratedProtocolMessageType('Response', (_message.Message,), {
   'DESCRIPTOR' : _RESPONSE,
@@ -136,15 +136,15 @@ _FILESHARING = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=138,
-  serialized_end=190,
+  serialized_start=141,
+  serialized_end=194,
   methods=[
   _descriptor.MethodDescriptor(
     name='Request',
     full_name='FileSharing.Request',
     index=0,
     containing_service=None,
-    input_type=_REQUESTBYTES,
+    input_type=_REQUESTPIECES,
     output_type=_RESPONSE,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,

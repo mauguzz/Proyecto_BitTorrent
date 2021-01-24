@@ -16,7 +16,7 @@ class FileSharingStub(object):
         """
         self.Request = channel.unary_unary(
                 '/FileSharing/Request',
-                request_serializer=peer2peer__pb2.RequestBytes.SerializeToString,
+                request_serializer=peer2peer__pb2.RequestPieces.SerializeToString,
                 response_deserializer=peer2peer__pb2.Response.FromString,
                 )
 
@@ -35,7 +35,7 @@ def add_FileSharingServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Request': grpc.unary_unary_rpc_method_handler(
                     servicer.Request,
-                    request_deserializer=peer2peer__pb2.RequestBytes.FromString,
+                    request_deserializer=peer2peer__pb2.RequestPieces.FromString,
                     response_serializer=peer2peer__pb2.Response.SerializeToString,
             ),
     }
@@ -60,7 +60,7 @@ class FileSharing(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/FileSharing/Request',
-            peer2peer__pb2.RequestBytes.SerializeToString,
+            peer2peer__pb2.RequestPieces.SerializeToString,
             peer2peer__pb2.Response.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -1,14 +1,19 @@
-syntax = "proto3"
+//python -m grpc_tools.protoc -I./proto --python_out=. --grpc_python_out=. ./proto/peer2peer.proto
+syntax = "proto3";
 
 service FileSharing{
-    rpc Request(RequestPieces) returns (stream bytes){}
+    rpc Request(RequestBytes) returns (Response){}
 }
 //Para anunciarce
-message RequestPieces{
-    int32 firstPiece = 1;
-    int32 lastPiece = 2;
+message RequestBytes{
+    int32 firstByte = 1;
+    int32 lastByte = 2;
     string fileName = 3;
     string filePath = 4;
     
+}
+
+message Response{
+    bytes response = 1; //tiene límite hasta 4GiB
 }
 

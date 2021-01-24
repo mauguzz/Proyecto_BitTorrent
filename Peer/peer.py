@@ -1,5 +1,6 @@
 import http.client 
 import json
+import os
 from typing import Text
 import requests #Para hacer peticiones al servidor
 import uuid #Para generar un id para cada torrent
@@ -23,8 +24,8 @@ Pieces_Size = 10000
 #Función como servidor de archivos en comunicación peer to peer (seeder)
 class FileSharing(peer2peer_pb2_grpc.FileSharingServicer):
     def Request(self, request, context):
-        firstPiece = request.firstPiece
-        lastPiece = request.lastPiece
+        firstPiece = request.firstByte
+        lastPiece = request.lastByte
         fileName = request.fileName
         filePath = request.filePath
 
@@ -58,9 +59,9 @@ def conexion_peer_peer(lista, torrent):
         with grpc.insecure_channel(lista[0]['seederIP']+':'+str(lista[0]['seederPort'])) as channel:
             stub = peer2peer_pb2_grpc.FileSharingStub(channel)
             details = stub.Request(
-                peer2peer_pb2.RequestPieces(
-                    firstPiece = 0,
-                    lastPiece= lastPieceSize-1,
+                peer2peer_pb2.RequestBytes(
+                    firstByte = 0,
+                    lastByte= lastPieceSize-1,
                     fileName=fileName,
                     filePath=filePath
                 )
@@ -85,9 +86,9 @@ def conexion_peer_peer(lista, torrent):
             with grpc.insecure_channel(lista[i]['seederIP']+':'+str(lista[i]['seederPort'])) as channel:
                 stub = peer2peer_pb2_grpc.FileSharingStub(channel)
                 details = stub.Request(
-                    peer2peer_pb2.RequestPieces(
-                        firstPiece = desde,
-                        lastPiece= min(hasta, pieces-1),
+                    peer2peer_pb2.RequestBytes(
+                        firstByte = desde,
+                        lastByte= min(hasta, pieces-1),
                         fileName=fileName,
                         filePath=filePath
                     )
@@ -106,15 +107,16 @@ def conexion_peer_peer(lista, torrent):
             with grpc.insecure_channel(lista[last_seeder]['seederIP']+':'+str(lista[last_seeder]['seederPort'])) as channel:
                 stub = peer2peer_pb2_grpc.FileSharingStub(channel)
                 details = stub.Request(
-                    peer2peer_pb2.RequestPieces(
-                        firstPiece = pieces*Pieces_Size,
-                        lastPiece= pieces*Pieces_Size+lastPieceSize,
+                    peer2peer_pb2.RequestBytes(
+                        firstByte = pieces*Pieces_Size,
+                        lastByte= pieces*Pieces_Size+lastPieceSize,
                         fileName=fileName,
                         filePath=filePath
                     )
                 )
                 print('Pasamos por 112')
                 print(details)
+            print('Afuera del ultimo request')
 
 
 #--------------------------------------------------------------------------------
@@ -137,7 +139,7 @@ def crear_torrent(filename, filepath, tracker_ip):
     #Para la verificacion de la integridad de los datos
     hasher = hashlib.md5();
     
-
+    os.system('cls')
     with open(filepath+'\\'+filename,"rb") as f:
         file = f.read()
         name = filename[0:filename.rindex('.')];
@@ -247,15 +249,16 @@ def buscar_archivos(seederPort):
     
 def usuario(seederPort):
 
-    print('¿Qué quieres hacer?')
-    opciones={1:'Compartir archivo.', 2:'Buscar archivos para descargar'}
-    funciones=[compartir_archivo,buscar_archivos]
+    while 1:
+        print('¿Qué quieres hacer?')
+        opciones={1:'Compartir archivo.', 2:'Buscar archivos para descargar'}
+        funciones=[compartir_archivo,buscar_archivos]
 
-    for key, op in opciones.items(): #para mostrar el menu de el diccionario de
-        print(f"[{key}] {op}" )
-    opt=int(input('Opción: '))
-    
-    funciones[opt-1](seederPort)
+        for key, op in opciones.items(): #para mostrar el menu de el diccionario de
+            print(f"[{key}] {op}" )
+        opt=int(input('Opción: '))
+        
+        funciones[opt-1](seederPort)
 
 
 
@@ -263,6 +266,9 @@ def usuario(seederPort):
 #Programa principal
 def main():
     seederPort=input('Ingrese número de puerto: ')
+    hostName = socket.gethostname()
+    hostIP = socket.gethostbyname(hostName)
+    print(hostIP+':'+str(seederPort))
     t=threading.Thread(target=usuario,args=[seederPort])
     t.start()
     serve(seederPort)

@@ -27,6 +27,7 @@ def crear_torrent(filename, filepath, tracker_ip):
     Max_Request = 10;
     #Para la verificacion de la integridad de los datos
     hasher = hashlib.md5();
+    
 
     with open(filepath+'\\'+filename,"rb") as f:
         file = f.read()
@@ -68,14 +69,14 @@ def crear_torrent(filename, filepath, tracker_ip):
         'id': ids
     })
 
-    with open(filename+'.torrent', 'w') as file: #Creando el archivo .torrent 
+    with open('TorrentsPeer//'+filename+'.torrent', 'w') as file: #Creando el archivo .torrent 
         file.write(jsonfile)
 
     return file
 
 #Compartiendo el arhivo .torrent con el servidor
 def post_torrent_webserver(filename, webserver_ip):
-    with open(filename+'.torrent', 'r') as file:
+    with open('TorrentsPeer//'+filename+'.torrent', 'r') as file:
         filecontent=file.read()
 
     params=json.loads(filecontent)
@@ -86,8 +87,9 @@ def post_torrent_webserver(filename, webserver_ip):
 
 #Para anunciarnos al tracker   
 def anunciarse_tracker(trackerIP,pTracker,fileName):
+    hostName = socket.gethostname()
+    hostIP = socket.gethostbyname(hostName)
 
-    hostIP = socket.gethostname()
 
     with grpc.insecure_channel(trackerIP+':'+str(pTracker)) as channel:
         stub = tracker_pb2_grpc.SwarmStub(channel)
@@ -103,23 +105,26 @@ def buscar_archivos():
 
     for i,val in enumerate(msg):
         print(f"{i+1}:{val}")
+
     opc = int(input('Opcion: '))
     nombre = msg[opc-1]
     print(nombre)
     r = requests.get('http://localhost:4000/torrent', params={'name':nombre})
-    hostIP = socket.gethostname()
+    
+    hostName = socket.gethostname()
+    hostIP = socket.gethostbyname(hostName)
     
     torrent = json.loads(r.text)
     trackerIP = torrent['tracker']
     puertoTrakcer = torrent['puertoTracker']
     fileName = torrent['name']
-    id = torrent['id']
+    idTorrent = torrent['id']
 
     print(trackerIP,puertoTrakcer)
 
     with grpc.insecure_channel(trackerIP+':'+str(puertoTrakcer)) as channel:
         stub = tracker_pb2_grpc.SwarmStub(channel)
-        request = stub.RequestSwarm(tracker_pb2.SwarmData(fileName = fileName,leecherIP = hostIP,leecherPort = str(5000),id = id))
+        request = stub.RequestSwarm(tracker_pb2.SwarmData(fileName = fileName,leecherIP = hostIP,leecherPort = 5000,id = idTorrent))
         print(request)
 
 #Programa principal

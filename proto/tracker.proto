@@ -5,6 +5,7 @@ service Swarm{
     rpc CreateSwarm(SwarmNode) returns (Status){}  
     rpc RequestSwarm(SwarmData) returns (Status){} //cambiar por string
     rpc AddToSwarm(SwarmNode) returns (Status){}
+    
 }
 //Para anunciarce
 message SwarmNode{
@@ -22,7 +23,7 @@ message Status{
 message SwarmData{
     string fileName = 1;
     string leecherIP = 2;
-    string leecherPort = 3;
+    int32 leecherPort = 3;
     string id = 4;
 }
 

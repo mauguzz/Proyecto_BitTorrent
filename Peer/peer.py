@@ -117,11 +117,14 @@ def buscar_archivos():
 
     print(trackerIP,puertoTrakcer)
 
+    swarm_data=[]
     with grpc.insecure_channel(trackerIP+':'+str(puertoTrakcer)) as channel:
         stub = tracker_pb2_grpc.SwarmStub(channel)
         request = stub.RequestSwarm(tracker_pb2.SwarmData(fileName = fileName,leecherIP = hostIP,leecherPort = str(5000),id = id))
         print(request)
-
+        swarm_data=json.loads(request.details)
+    print(swarm_data)
+    swarm=swarm_data.swarm
 #Programa principal
 def main():
     print('¿Qué quieres hacer?')

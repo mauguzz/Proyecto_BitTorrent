@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rtracker.proto\"O\n\tSwarmNode\x12\x10\n\x08\x66ileName\x18\x01 \x01(\t\x12\x10\n\x08seederIP\x18\x02 \x01(\t\x12\x12\n\nseederPort\x18\x03 \x01(\x05\x12\n\n\x02id\x18\x04 \x01(\t\"\x19\n\x06Status\x12\x0f\n\x07\x64\x65tails\x18\x01 \x01(\t\"Q\n\tSwarmData\x12\x10\n\x08\x66ileName\x18\x01 \x01(\t\x12\x11\n\tleecherIP\x18\x02 \x01(\t\x12\x13\n\x0bleecherPort\x18\x03 \x01(\t\x12\n\n\x02id\x18\x04 \x01(\t2y\n\x05Swarm\x12$\n\x0b\x43reateSwarm\x12\n.SwarmNode\x1a\x07.Status\"\x00\x12%\n\x0cRequestSwarm\x12\n.SwarmData\x1a\x07.Status\"\x00\x12#\n\nAddToSwarm\x12\n.SwarmNode\x1a\x07.Status\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\rtracker.proto\"O\n\tSwarmNode\x12\x10\n\x08\x66ileName\x18\x01 \x01(\t\x12\x10\n\x08seederIP\x18\x02 \x01(\t\x12\x12\n\nseederPort\x18\x03 \x01(\x05\x12\n\n\x02id\x18\x04 \x01(\t\"\x19\n\x06Status\x12\x0f\n\x07\x64\x65tails\x18\x01 \x01(\t\"Q\n\tSwarmData\x12\x10\n\x08\x66ileName\x18\x01 \x01(\t\x12\x11\n\tleecherIP\x18\x02 \x01(\t\x12\x13\n\x0bleecherPort\x18\x03 \x01(\x05\x12\n\n\x02id\x18\x04 \x01(\t2y\n\x05Swarm\x12$\n\x0b\x43reateSwarm\x12\n.SwarmNode\x1a\x07.Status\"\x00\x12%\n\x0cRequestSwarm\x12\n.SwarmData\x1a\x07.Status\"\x00\x12#\n\nAddToSwarm\x12\n.SwarmNode\x1a\x07.Status\"\x00\x62\x06proto3'
 )
 
 
@@ -134,8 +134,8 @@ _SWARMDATA = _descriptor.Descriptor(
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='leecherPort', full_name='SwarmData.leecherPort', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),

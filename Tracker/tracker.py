@@ -33,6 +33,7 @@ class Swarm(tracker_pb2_grpc.SwarmServicer):
         leecherIP = request.leecherIP
         id = request.id
         swarms = []
+        
 
         with open(self.file,'r') as file:
             fileContent = file.read()
@@ -52,7 +53,7 @@ class Swarm(tracker_pb2_grpc.SwarmServicer):
         seederPort = request.seederPort
 
         return tracker_pb2.Status(details = "hola")
-            
+
 def serve():
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
         tracker_pb2_grpc.add_SwarmServicer_to_server(Swarm(),server)
@@ -61,4 +62,5 @@ def serve():
         server.wait_for_termination()
 
 if __name__ == "__main__":
+    print(f"Running tracker on port: 5000")
     serve()

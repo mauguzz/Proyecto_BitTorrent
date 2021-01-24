@@ -24,8 +24,8 @@ Pieces_Size = 10000
 #Función como servidor de archivos en comunicación peer to peer (seeder)
 class FileSharing(peer2peer_pb2_grpc.FileSharingServicer):
     def Request(self, request, context):
-        firstPiece = request.firstByte
-        lastPiece = request.lastByte
+        firstByte = request.firstByte
+        lastByte = request.lastByte
         fileName = request.fileName
         filePath = request.filePath
 
@@ -33,7 +33,7 @@ class FileSharing(peer2peer_pb2_grpc.FileSharingServicer):
         with open(filePath+fileName, 'rb') as file:
             pieces=file.read()
 
-        return peer2peer_pb2.Response(response=pieces[Pieces_Size*firstPiece:Pieces_Size*(lastPiece+1)-1])
+        return peer2peer_pb2.Response(response=pieces[firstByte:lastByte])
 
 def serve(seederPort):
     hostName = socket.gethostname()
@@ -53,6 +53,9 @@ def conexion_peer_peer(lista, torrent):
     pieces = int(torrent['pieces'])
     lastPieceSize = int(torrent['lastPiece'])
     filePath = torrent['filepath']
+    receivedSize=0
+    receivedData=''
+    receivedDataBytes=b''
     
     if pieces==0 :
         #Pedir la última pieza truncada al último seeder
@@ -87,13 +90,16 @@ def conexion_peer_peer(lista, torrent):
                 stub = peer2peer_pb2_grpc.FileSharingStub(channel)
                 details = stub.Request(
                     peer2peer_pb2.RequestBytes(
-                        firstByte = desde,
-                        lastByte= min(hasta, pieces-1),
+                        firstByte = desde*Pieces_Size,
+                        lastByte= (min(hasta, pieces-1)+1)*Pieces_Size-1,
                         fileName=fileName,
                         filePath=filePath
                     )
                 )
-                print(details)
+                print(details.response)
+                receivedSize+=len(details.response)
+                receivedData+=str(details.response)
+                receivedDataBytes+=details.response
                 print('Pasamos por 92')
 
             #print(i)
@@ -115,8 +121,16 @@ def conexion_peer_peer(lista, torrent):
                     )
                 )
                 print('Pasamos por 112')
-                print(details)
+                print(details.response)
+                receivedSize+=len(details.response)
+                receivedData+=str(details.response)
+                receivedDataBytes+=details.response
             print('Afuera del ultimo request')
+        print('Tamaño del archivo recibido: '+str(receivedSize))
+        print(receivedData)
+        with open('Share/MeshReceived.jpg', 'wb') as file: #+filename
+            file.write(receivedDataBytes)
+
 
 
 #--------------------------------------------------------------------------------
@@ -144,6 +158,7 @@ def crear_torrent(filename, filepath, tracker_ip):
         file = f.read()
         name = filename[0:filename.rindex('.')];
         fileSize = len(file)
+        print(file)
         print(f"Tamaño del archivo: {fileSize}")
         Pieces_Qty = int(math.ceil(fileSize/Pieces_Size))
 

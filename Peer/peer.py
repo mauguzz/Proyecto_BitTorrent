@@ -46,12 +46,14 @@ def serve(seeder_port):
 
 #------------------------------------------------------------------------------------
 #Función como cliente de archivos en comunicación peer to peer (lecher)
-def conexion_peer_peer(seeders, torrent):
+def conexion_peer_peer(seeder_port, seeders, torrent):
 
     file_name = torrent['name']
     file_path = torrent['filepath']
     amount_of_pieces = int(torrent['pieces'])
     last_piece_size = int(torrent['lastPiece'])
+    tracker_port=int(torrent['puertoTracker'])
+    tracker_ip=torrent['tracker']
 
     max_connections=5
     amount_of_bytes_received=0
@@ -59,6 +61,7 @@ def conexion_peer_peer(seeders, torrent):
     
     if amount_of_pieces==0 :
         #Pedir la última pieza truncada al último seeder
+        print('Conectando con el peer: '+seeders[0]['seederIP']+':'+str(seeders[0]['seederPort']))
         with grpc.insecure_channel(seeders[0]['seederIP']+':'+str(seeders[0]['seederPort'])) as channel:
             stub = peer2peer_pb2_grpc.FileSharingStub(channel)
             data = stub.Request(
@@ -69,66 +72,100 @@ def conexion_peer_peer(seeders, torrent):
                     filePath=file_path
                 )
             )
+            bytes_received=data.response
+
+        with open('Share/'+'rcv_'+file_name, 'wb') as file: #+filename
+            file.write(bytes_received)
+
+        print('Me estoy notificando como parte del enjambre para este archivo')
+        host_name = socket.gethostname()
+        host_ip = socket.gethostbyname(host_name)
+        with grpc.insecure_channel(tracker_ip+':'+str(tracker_port)) as channel:
+            stub = tracker_pb2_grpc.SwarmStub(channel)
+            data = stub.AddToSwarm(
+                tracker_pb2.SwarmNode(
+                    fileName = file_name,
+                    seederIP = host_ip,
+                    seederPort = int(seeder_port)
+                )
+            )
             print(data)
+
     else:
         scheduled_connections=min(int(max_connections), len(seeders))
         pieces_to_receive_each_seeder=math.ceil(amount_of_pieces/scheduled_connections)
        
-        
+        #amount_pieces=57039
+        #scheduled_connections=5
         #Pedir todas las piezas que están completas a diferentes seeders
         it=0
         last_seeder={}
         for i in range(0, scheduled_connections):
-            print('Itera')
-            desde=pieces_to_receive_each_seeder*it
-            hasta=pieces_to_receive_each_seeder*(it+1)-1
+            
+            desde=pieces_to_receive_each_seeder*it #0
+            hasta=pieces_to_receive_each_seeder*(it+1)-1 #4
 
             #Conexiones con los peers,,,
-            print(seeders[i]['seederIP']+':'+str(seeders[i]['seederPort']))
+            print('Conectando con el peer '+seeders[i]['seederIP']+':'+str(seeders[i]['seederPort']))
             with grpc.insecure_channel(seeders[i]['seederIP']+':'+str(seeders[i]['seederPort'])) as channel:
                 stub = peer2peer_pb2_grpc.FileSharingStub(channel)
                 data = stub.Request(
                     peer2peer_pb2.RequestBytes(
-                        firstByte = desde*pieces_size,
-                        lastByte= (min(hasta, amount_of_pieces-1)+1)*pieces_size-1, #Aquí es donde podría estar la falla que distorsiona el archivo
+                        firstByte = desde*pieces_size, #0
+                        lastByte= (min(hasta, amount_of_pieces-1)+1)*pieces_size-1,#49999    #Aquí es donde podría estar la falla que distorsiona el archivo
                         fileName=file_name,
                         filePath=file_path
                     )
                 )
-                print(data.response)
+                
                 amount_of_bytes_received+=len(data.response)
                 
                 bytes_received+=data.response
-                print('Pasamos por 92')
+               
 
-            #print(i)
-            print('Pasamos por 95')
+            
             it+=1
             last_seeder=i
         
-        if last_piece_size!=0:
+        if last_piece_size!=0: #TRUE 7039
             #Pedir la última pieza truncada al último seeder
-            print('Pasamos por 101')
+            print('Conectando con el peer '+seeders[last_seeder]['seederIP']+':'+str(seeders[last_seeder]['seederPort']))
             with grpc.insecure_channel(seeders[last_seeder]['seederIP']+':'+str(seeders[last_seeder]['seederPort'])) as channel:
                 stub = peer2peer_pb2_grpc.FileSharingStub(channel)
                 data = stub.Request(
                     peer2peer_pb2.RequestBytes(
-                        firstByte = amount_of_pieces*pieces_size,
-                        lastByte= amount_of_pieces*pieces_size+last_piece_size,
+                        firstByte = amount_of_pieces*pieces_size, #5*10000 = 50000
+                        lastByte= amount_of_pieces*pieces_size+last_piece_size, #57039
                         fileName=file_name,
                         filePath=file_path
                     )
                 )
-                print('Pasamos por 112')
-                print(data.response)
+                
+                #print(data.response)
                 amount_of_bytes_received+=len(data.response)
                 
                 bytes_received+=data.response
-            print('Afuera del ultimo request')
         print('Tamaño del archivo recibido: '+str(amount_of_bytes_received))
-        print(bytes_received)
-        with open('Share/MeshReceived.jpg', 'wb') as file: #+filename
+        
+
+
+        with open('Share/'+'rcv_'+file_name, 'wb') as file: #+filename
             file.write(bytes_received)
+
+        print('Me estoy notificando con el tracker como parte del enjambre para este archivo')
+        host_name = socket.gethostname()
+        host_ip = socket.gethostbyname(host_name)
+        with grpc.insecure_channel(tracker_ip+':'+str(tracker_port)) as channel:
+            stub = tracker_pb2_grpc.SwarmStub(channel)
+            data = stub.AddToSwarm(
+                tracker_pb2.SwarmNode(
+                    fileName = file_name,
+                    seederIP = host_ip,
+                    seederPort = int(seeder_port)
+                )
+            )
+            print(data)
+
 
 
 
@@ -154,7 +191,7 @@ def crear_torrent(file_name, file_path, tracker_ip):
         data = file.read()
         #name = file_name[0:file_name.rindex('.')];
         file_size = len(data)
-        print(data)
+        
         print(f"Tamaño del archivo: {file_size}")
 
 
@@ -205,8 +242,8 @@ def post_torrent_webserver(file_name, webserver_ip):
     params=json.loads(data)
     r = requests.post('http://localhost:4000/torrent', data = params) #mandando los datos del torrent en formato JSON
     msg=r.json()
-    print(msg['Recibi']['checksum']) #Imprimimos el subobjeto checksum de la respues del servidor
     r.status_code
+    print('Publiqué el archivo en el servidor web.')
 
 #Para anunciarnos al tracker   
 def anunciarse_tracker(tracker_ip,tracker_port,file_name, seeder_port):
@@ -222,7 +259,7 @@ def anunciarse_tracker(tracker_ip,tracker_port,file_name, seeder_port):
                 seederPort = int(seeder_port)
             )
         )
-        print(data)
+        print('Notifiqué al tracker del archivo compartido solicitando crear un enjambre.')
 
 
 
@@ -230,7 +267,7 @@ def anunciarse_tracker(tracker_ip,tracker_port,file_name, seeder_port):
 def buscar_archivos(seeder_port):
     r = requests.get('http://localhost:4000/archivos', data={1: 'p'})
     msg=r.json()
-    print(msg[0])
+    os.system('cls')
     print('Elija un archivo para descargar: ')
 
     for i,val in enumerate(msg):
@@ -238,7 +275,7 @@ def buscar_archivos(seeder_port):
 
     opt = int(input('Opcion: '))
     name_of_file_selected = msg[opt-1]
-    print(name_of_file_selected)
+    print('Seleccionó el archivo: '+name_of_file_selected)
     r = requests.get('http://localhost:4000/torrent', params={'name':name_of_file_selected})
     
     host_name = socket.gethostname()
@@ -253,7 +290,7 @@ def buscar_archivos(seeder_port):
     last_piece_size = torrent['lastPiece']
 
 
-    print(tracker_ip,tracker_port)
+    print('Conectando con el tracker en '+ tracker_ip+':'+str(tracker_port)+' para solicitar el enjambre')
 
     swarm_data=[]
     with grpc.insecure_channel(tracker_ip+':'+str(tracker_port)) as channel:
@@ -261,8 +298,8 @@ def buscar_archivos(seeder_port):
         data = stub.RequestSwarm(tracker_pb2.SwarmData(fileName = file_name,leecherIP = host_ip,leecherPort = 5000,id = torrent_id))
         print(data)
         swarm_data=json.loads(data.details)
-    print(swarm_data)
-    conexion_peer_peer(swarm_data['swarm'], torrent)
+    print('La información recibida desde el tracker fue: \n'+str(swarm_data))
+    conexion_peer_peer(seeder_port, swarm_data['swarm'], torrent)
 
 #Función de menú del usuario   
 def usuario(seeder_port):

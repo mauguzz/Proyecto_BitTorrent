@@ -1,3 +1,16 @@
+> ## NOTA: Sobre el código de mi proyecto terminal de ingeniería telemática:
+> 
+> El código de dicho proyecto se encuentra en un repositorio de mi otra cuenta de GitHub: github.com/mauguzmor. Sin embargo, es un repositorio protegido.
+> 
+> Si está interesado en conocer una muestra de dicho código, contácteme al correo mauricio.guzz@outlook.com.
+> 
+> Recomiendo visitar mi portafolio de proyectos para conocer de qué trata mi proyecto terminal de ingeniería telemática:
+> qué temas de investigación abarcó, el software de simulación de eventos discretos que diseñé y desarrollé, que arquitecturas implementé,
+> y como utilicé conocimiento tanto de la academia como de la industria para resolver distintos problemas que se me presentaron durante el desarrollo
+> de este proyecto. Haga clic en el enlace siguiente:
+> 
+> [Simulador de eventos discretos para la evaluación de protocolos de comunicaciones para enlaces ópticos satelitales](https://mauguzz.notion.site/Proyecto-de-titulaci-n-Caracterizaci-n-y-dise-o-de-estrategia-de-control-de-flujo-para-un-enlace-p-209b460cd8f349989ae0d2578e4301fc)
+
 # Proyecto_BitTorrent
 Proyecto de la materia de Sistemas Distribuidos de la carrera de Ingeniería Telemática en UPIITA del Instituto Politécnico Nacional.
 
